@@ -22,7 +22,7 @@ namespace JWtTest
             if(!Page.IsPostBack)
             {
                 //initialize cardinal, pass the jwtoken created server side that contains the credentials...only once per page
-                ClientScript.RegisterStartupScript(this.GetType(), "", "<script language='javascript'>Cardinal.setup('init', { jwt: document.getElementById('JWTContainer').value });</script>");
+               // ClientScript.RegisterStartupScript(this.GetType(), "", "<script language='javascript'>Cardinal.setup('init', { jwt: document.getElementById('JWTContainer').value });</script>");
             }
         }
 

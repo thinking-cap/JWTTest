@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
     <title></title>
-   <script src="https://songbirdstag.cardinalcommerce.com/cardinalcruise/v1/songbird.js"></script>
+   <script src="https://songbirdstag.cardinalcommerce.com/cardinalcruise/v1/songbird.js" type="text/javascript"></script>
   
      <!--JQuery-->
         <script  type="text/javascript" src="js/jquery.min.js"></script>
@@ -14,12 +14,9 @@
        
         <!-- Bootstrap-->
         <script type="text/javascript" src="https://tcmagnum.blob.core.windows.net/cdn/bootstrap.min.js" integrity="sha384-QAIs1woD/aMG57FSRKNkwfFJJxc0nRFEcQD55sY30YuGIvb6TPf3v4DCa4ZJKMH7" crossorigin="anonymous"></script>
-        <script  type="text/javascript" src="js/bootbox.min.js"></script>
-          <script type="text/javascript" src="js/wysihtml5-0.3.0_rc2.js"></script>
-          <script type="text/javascript" src="js/bootstrap-wysihtml5-0.0.2.js"></script>
-          <link type="text/css" rel="stylesheet" href="js/bootstrap-wysihtml5-0.0.2.css"/>
+       <link type="text/css" rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"/>
 
-    <script >
+    <script type="text/javascript" >
 
         Cardinal.configure({
             logging: {
@@ -29,19 +26,24 @@
 
 
     </script>
+    <style type="text/css" media="all">
+        html{color:#000000;}
+        .label{color:#000000;}
+    </style>
 </head>
 <body>
+    
     <form id="form1" runat="server">
-        <input type="hidden" id="JWTContainer" value="[Insert your JWT here]" runat="server"/>
-    <div>
-      <div id="ccPanel" name = "ccPanel" runat="server">
-			                    <div>
+    <input type="hidden" id="JWTContainer" value="[Insert your JWT here]" runat="server"/>
+    <div class="container">
+      <div id="ccPanel" name = "ccPanel" runat="server" class="col-md-4">
+			                    <div class="col-md-12">
 			                        <asp:Label id="CardNumberLabel" for="cardNumber" cssclass="label" runat="server" translate="true">Card Number</asp:Label>
 			                        <span class="form-inline">
 			                            <asp:TextBox runat="server" data-cardinal-field="AccountNumber" id="cardNumber" autocomplete="off" cssclass="form-control" required="required">4709500741200609</asp:TextBox>
 			                        </span>
 			                    </div>
-			                    <div>
+			                    <div class="col-md-12">
 			                        <asp:Label id="ExpirationDateLabel" for="expirationDate" cssclass="label" runat="server" translate="true" >Expiration Date</asp:Label>
 			                        <span class="form-inline">
 			                            <asp:dropdownlist id="expirationDateMonth" groupname="expirationDate" runat="server" width="65px" cssclass="form-control">
@@ -79,23 +81,24 @@
 							            </asp:dropdownlist>
 			                        </span>
 			                    </div>
-			                    <div>
+			                    <div class="col-md-12">
 			                        <asp:Label id="cvv2Label" for="cvv2" cssclass="label" runat="server" translate="true">Card Verification Value (CVV2)</asp:Label>
 			                        <span class="form-inline">
 			                            <asp:textbox id="cvv2" runat="server" Width="60px" autocomplete="off" cssclass="form-control" required="required">123</asp:textbox>
 			                        </span>
 			                    </div>
-                            </div>
-
-         <div class="button_container text-right">  
-             <input type="submit" id="purchase" name="purchase" disable="true"   onclick="doPurchase();" />                 
+           <div class="button_container text-center col-md-8">  
+             <button  class="btn btn-default" id="purchase" name="purchase" disabled="disabled" onclick="doPurchase();" >Purchase</button>             
              <%-- <asp:button id="Buy" runat="server" text="Continue" onclientclick="doPurchase();" onclick="Buy_Click" translate="true"  class="active button btn btn-default captcha"></asp:button>--%>
           </div>
+                            </div>
+
+        
     </div>
     </form>
 </body>
 
-    <script>
+    <script type="text/javascript">
 
 
         var requestValidateToken = function (token) {
@@ -129,13 +132,15 @@
 
     </script>
 
-    <script >
+    <script type="text/javascript" >
 
         //initialize cardinal, pass the jwtoken created server side that contains the credentials
         //I call this on page load, not post back, documentation states should be only called once per page
-        //Cardinal.setup("init", {
-        //    jwt: document.getElementById("JWTContainer").value
-        //});
+        $(document).ready(function () {
+            Cardinal.setup("init", {
+                jwt: $("#JWTContainer").val()
+            });
+        });
 
 
         //This event will not trigger if an error occurred during Cardinal.setup() call (failed jwt authentication)
@@ -152,6 +157,7 @@
 
         //this happens on  'Submit Order' button
         var doPurchase = function () {
+            //event.preventDefault();
             console.log('-----------------doPurchase start,starting cardinal');
             //CCA is initiated by the merchant, typically when the customer clicks 'Place Order" or 'Submit Order' button. 
             //Instead of getting a card authorization, you need to initiate the Cardinal.start() before authorization.
@@ -261,6 +267,7 @@
                     // Handle service level error
                     alert("payments.validated - ERROR");
                     break;
+                default: alert('nothing'); break;
             }
         });
 
