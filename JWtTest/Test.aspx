@@ -7,6 +7,18 @@
     <title></title>
    <script src="https://songbirdstag.cardinalcommerce.com/cardinalcruise/v1/songbird.js"></script>
   
+     <!--JQuery-->
+        <script  type="text/javascript" src="js/jquery.min.js"></script>
+        <script  type="text/javascript" src="js/jquery-ui.min.js"></script>       
+        <link rel="stylesheet" type="text/css" href="js/jquery-ui.min.css"/>
+       
+        <!-- Bootstrap-->
+        <script type="text/javascript" src="https://tcmagnum.blob.core.windows.net/cdn/bootstrap.min.js" integrity="sha384-QAIs1woD/aMG57FSRKNkwfFJJxc0nRFEcQD55sY30YuGIvb6TPf3v4DCa4ZJKMH7" crossorigin="anonymous"></script>
+        <script  type="text/javascript" src="js/bootbox.min.js"></script>
+          <script type="text/javascript" src="js/wysihtml5-0.3.0_rc2.js"></script>
+          <script type="text/javascript" src="js/bootstrap-wysihtml5-0.0.2.js"></script>
+          <link type="text/css" rel="stylesheet" href="js/bootstrap-wysihtml5-0.0.2.css"/>
+
     <script >
 
         Cardinal.configure({
@@ -75,8 +87,9 @@
 			                    </div>
                             </div>
 
-         <div class="button_container text-right">                      
-              <asp:button id="Buy" runat="server" text="Continue" onclientclick="doPurchase();" onclick="Buy_Click" translate="true"  class="active button btn btn-default captcha"></asp:button>
+         <div class="button_container text-right">  
+             <input type="submit" id="purchase" name="purchase" disable="true"   onclick="doPurchase();" />                 
+             <%-- <asp:button id="Buy" runat="server" text="Continue" onclientclick="doPurchase();" onclick="Buy_Click" translate="true"  class="active button btn btn-default captcha"></asp:button>--%>
           </div>
     </div>
     </form>
@@ -87,6 +100,7 @@
 
         var requestValidateToken = function (token) {
          
+            console.log('---------------------requestValidateToken start');
             var requestValidateTokenXhr = $.ajax({
                 url: baseurl + '/TokenHandler.ashx',
                 dataType: "json",
@@ -105,7 +119,7 @@
                     //}
 
                     //do here the actual purchase as before
-                    __doPostBack('Buy', '');
+                   // __doPostBack('Buy', '');
                 }
                 else {
                     alert("NOT validated," + data.result);
@@ -118,40 +132,121 @@
     <script >
 
         //initialize cardinal, pass the jwtoken created server side that contains the credentials
-        Cardinal.setup("init", {
-            jwt: document.getElementById("JWTContainer").value
-        });
+        //I call this on page load, not post back, documentation states should be only called once per page
+        //Cardinal.setup("init", {
+        //    jwt: document.getElementById("JWTContainer").value
+        //});
 
 
         //This event will not trigger if an error occurred during Cardinal.setup() call (failed jwt authentication)
         //If it gets executed, Songbird is available to run transactions. This function will receive 2 arguments that describe the loaded state of Songbird and the current session identifier.
         //do not enable purchase button maybe if we cannot communicate with Cardinal ?
         Cardinal.on('payments.setupComplete', function (setupCompleteData) {
-            alert("payments.setupComplete");
+            console.log('------------------payments.setupComplete start, enabling Buy button');
+            // For example, you may have your Submit button disabled on page load. Once you are setup 
+            // for CCA, you may then enable it. This will prevent users from submitting their order 
+            // before CCA is ready.
+            document.getElementById('purchase').disabled = false;
         });
 
 
         //this happens on  'Submit Order' button
         var doPurchase = function () {
+            console.log('-----------------doPurchase start,starting cardinal');
             //CCA is initiated by the merchant, typically when the customer clicks 'Place Order" or 'Submit Order' button. 
             //Instead of getting a card authorization, you need to initiate the Cardinal.start() before authorization.
-            //
-            //The next step in the integration is to add logic to payements.validated event above to handle specific return values for CCA
-            Cardinal.start("cca", {OrderDetails: {OrderNumber: "1234567890"},Consumer: {Account: {AccountNumber: "4709500741200609", ExpirationMonth: "03",ExpirationYear: "2030" } }
-            });
+            
+            var orderObject = {
+                "Authorization": {
+                    "AuthorizeAccount": true
+                },
+                "Cart": [
+                  {
+                      "Name": "test course",
+                      "SKU": "111111",
+                      "Quantity": "1",
+                      "Description": "a course"
+                  }
+                ],
+                "Consumer": {
+                    "Email1": "test@mail.com",
+                    "Email2": "test1@mail.com",
+                    "ShippingAddress": {
+                        "FullName": "John Smith",
+                        "FirstName": "John",
+                        "MiddleName": "",
+                        "LastName": "Smith",
+                        "Address1": "250 the esplanade..",
+                        "Address2": "",
+                        "Address3": "",
+                        "City": "Mentor",
+                        "State": "Ohio",
+                        "PostalCode": "44060",
+                        "CountryCode": "US",
+                        "Phone1": "",
+                        "Phone2": ""
+                    },
+                    "BillingAddress": {
+                        "FullName": "John Smith",
+                        "FirstName": "John",
+                        "MiddleName": "",
+                        "LastName": "Smith",
+                        "Address1": "250 the esplanade.",
+                        "Address2": "",
+                        "Address3": "",
+                        "City": "Mentor",
+                        "State": "Ohio",
+                        "PostalCode": "44060",
+                        "CountryCode": "US",
+                        "Phone1": "",
+                        "Phone2": ""
+                    },
+                    "Account": {
+                        "AccountNumber": 340000000003961,
+                        "ExpirationMonth": 01,
+                        "ExpirationYear": 2022,
+                        "CardCode": 0775,
+                        "NameOnAccount": "John Smith"
+                    }
+                },
+                "Options": {
+                    "EnableCCA": true
+                },
+                "OrderDetails": {
+                    "OrderNumber": Math.random(0, 1000000) + "-shzs",
+                    "Amount": 25.00,
+                    "CurrencyCode": "840",
+                    "OrderDescription": "nothg",
+                    "OrderChannel": "S",
+                    "TransactionId": "2fDSaySnCmDGCjPglzqX"
+                },
+                "Token": {
+                    "Token": "",
+                    "CardCode": 0775,
+                    "ExpirationMonth": 01,
+                    "ExpirationYear": 2022
+                }
+            };
+
+
+           
+            Cardinal.start("cca", orderObject);
+            //The next step in the integration is to add logic to payements.validated event to handle specific return values for CCA
         }
 
-        //This event is triggered when the transaction has been finished
+        //This event is triggered when the transaction from  Cardinal.start() has been finished, we need to handle it's response
         //Here Songbird hands back control to the merchant's webpage. This event will include data on how the transaction attempt ended and should be where you place logic for reviewing the results of the transaction and making decisions regarding next steps. 
         //The ActionCode field gets the overall state of the transaction. Additional information can be found in the fields ErrorNumber and ErrorDescription if the ActionCode indicates an issue was encountered.
         //On first pass, we recommend that on an ActionCode of 'SUCCESS' you send the response JWT to your backend to be verified. 
-        //When you add CCA or an Alternative Payment brand, additional details will be provided on how to handle the specific response values for each. Each additional payment brand you add may return some values that are specific to that payment brand, and may require special handling logic.
+        //When you add CCA or an Alternative Payment brand, additional details will be provided on how to handle the specific response values for each.
+        //Each additional payment brand you add may return some values that are specific to that payment brand, and may require special handling logic.
         Cardinal.on("payments.validated", function (data, jwt) {
+            console.log('------------------payments.validated,starting '+data.ActionCode);
             switch (data.ActionCode) {
                 case "SUCCESS":
                     // Handle successful transaction, send JWT to backend to verify
                     //validate data that comes from cardinal, after the order was sent to them
-                    //data parsed serverside, and validated
+                    //data parsed serverside, and validated. If all fine, do the purchase
                     requestValidateToken(jwt);
                     break;
                 case "NOACTION":
